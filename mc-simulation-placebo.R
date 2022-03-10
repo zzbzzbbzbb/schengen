@@ -19,7 +19,7 @@ source('IFE.R')
 ## Setup parallel processing 
 # Setup parallel processing
 
-doMPI <- TRUE
+doMPI <- FALSE
 if(doMPI){
   library(doMPI)
   
@@ -33,8 +33,12 @@ if(doMPI){
   print(paste0("cluster size: ", clusterSize(cl)))
   
 } else{
+  library(parallel)
   library(doParallel)
   library(foreach)
+  
+  cores <- parallel::detectCores()
+  print(paste0("number of cores used: ", cores))
   
   cl <- parallel::makeCluster(cores, outfile="")
   
@@ -123,7 +127,7 @@ SchengenSim <- function(T0,N_t,cores,sim,n,outcome){
   
   # bootstrap variance estimation
   df_mc_weights_covars <- widetoLong(Y= Y_obs, mask = treat_mat, X = X)
-  est_mc_weights_covars$boot_var <- clustered_bootstrap(current_data_realized_long=df_mc_weights_covars, estimator="mc_weights", N=N, T=T, B = 999, est_weights = TRUE, ncores=cores) # bootstrap without covariate
+  est_mc_weights_covars$boot_var <- clustered_bootstrap(current_data_realized_long=df_mc_weights_covars, estimator="mc_weights", N=N, T=T, B = 399, est_weights = TRUE, ncores=cores) # bootstrap without covariate
   print(paste("MC-NNM (weights + covars) variance:", round(est_mc_weights_covars$boot_var,5)))
   
   est_mc_weights_covars$cp <- CI_test(est_coefficent=est_mc_weights_covars$att.bar, real_coefficent=0, est_var=est_mc_weights_covars$boot_var)
@@ -145,7 +149,7 @@ SchengenSim <- function(T0,N_t,cores,sim,n,outcome){
   
   # bootstrap variance estimation
   df_compare <- widetoLong(Y= Y_obs, mask = treat_mat, X = NULL)
-  est_model_ADH$boot_var <- clustered_bootstrap(current_data_realized_long=df_compare, estimator="ADH", N=N, T=T, B = 999, est_weights = FALSE, ncores=cores)
+  est_model_ADH$boot_var <- clustered_bootstrap(current_data_realized_long=df_compare, estimator="ADH", N=N, T=T, B = 399, est_weights = FALSE, ncores=cores)
   print(paste("ADH variance:", round(est_model_ADH$boot_var,5)))
   
   est_model_ADH$cp <- CI_test(est_coefficent=est_model_ADH$att.bar, real_coefficent=0, est_var=est_model_ADH$boot_var)
@@ -167,7 +171,7 @@ SchengenSim <- function(T0,N_t,cores,sim,n,outcome){
   print(paste("DID abs. bias:", round(est_model_DID$abs.bias,5)))
   
   # bootstrap variance estimation
-  est_model_DID$boot_var <- clustered_bootstrap(current_data_realized_long=df_compare, estimator="DID", N=N, T=T, B = 999, est_weights = FALSE, ncores=cores)
+  est_model_DID$boot_var <- clustered_bootstrap(current_data_realized_long=df_compare, estimator="DID", N=N, T=T, B = 399, est_weights = FALSE, ncores=cores)
   print(paste("DID variance:", round(est_model_DID$boot_var,5)))
   
   est_model_DID$cp <- CI_test(est_coefficent=est_model_DID$att.bar, real_coefficent=0, est_var=est_model_DID$boot_var)
@@ -189,7 +193,7 @@ SchengenSim <- function(T0,N_t,cores,sim,n,outcome){
   print(paste("IFE abs. bias:", round(est_model_IFE$abs.bias,5)))
   
   # bootstrap variance estimation
-  est_model_IFE$boot_var <- clustered_bootstrap(current_data_realized_long=df_compare, estimator="IFE", N=N, T=T, B = 999, est_weights = FALSE, ncores=cores)
+  est_model_IFE$boot_var <- clustered_bootstrap(current_data_realized_long=df_compare, estimator="IFE", N=N, T=T, B = 399, est_weights = FALSE, ncores=cores)
   print(paste("IFE variance:", round(est_model_IFE$boot_var,5)))
   
   est_model_IFE$cp <- CI_test(est_coefficent=est_model_IFE$att.bar, real_coefficent=0, est_var=est_model_IFE$boot_var)
@@ -205,7 +209,7 @@ SchengenSim <- function(T0,N_t,cores,sim,n,outcome){
 }
 
 # define settings for simulation
-settings <- expand.grid("T0" =c(0.5,0.65,0.75,0.95), #0.05, 0.25, 0.5
+settings <- expand.grid("T0" =c(0.5,0.65,0.75), #0.05, 0.25, 0.5
                         "N_t" =c(0.5))
 
 args <- commandArgs(trailingOnly = TRUE) # command line arguments
@@ -219,8 +223,10 @@ outcome <- "CBWbordEMPL"
 
 n.runs <- 1000 # Num. simulation runs
 
-cores <- parallel::detectCores()
-print(paste0("number of cores used: ", cores))
+if(doMPI){
+  cores <- parallel::detectCores()
+  print(paste0("number of cores used: ", cores))
+}
 
 output_dir <- './outputs/'
 simulation_version <- paste0(format(Sys.time(), "%Y%m%d"),"/")

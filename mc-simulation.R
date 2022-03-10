@@ -16,7 +16,7 @@ source('utils.R')
 source('IFE.R')
 
 # Setup parallel processing
-doMPI <- TRUE
+doMPI <- FALSE
 if(doMPI){
   library(doMPI)
   
@@ -164,7 +164,7 @@ MCsim <- function(N,T,R,T0,N_t,logi_sc,noise_sc,beta_sc,loading_sc,shift_sc,core
   
   # bootstrap variance estimation
   df_mc_plain <- widetoLong(Y= noisy_mat, mask = mask, X = NULL)
-  est_mc_plain$boot_var <- clustered_bootstrap(current_data_realized_long=df_mc_plain, estimator="mc_plain", N=nrow(noisy_mat), T=ncol(noisy_mat), B = 599, est_weights = FALSE, ncores = cores)
+  est_mc_plain$boot_var <- clustered_bootstrap(current_data_realized_long=df_mc_plain, estimator="mc_plain", N=nrow(noisy_mat), T=ncol(noisy_mat), B = 399, est_weights = FALSE, ncores = cores)
   print(paste("MC-NNM (Plain) variance:", round(est_mc_plain$boot_var,3)))
   
   est_mc_plain$cp <- CI_test(est_coefficent=est_mc_plain$att.bar, real_coefficent=att.true, est_var=est_mc_plain$boot_var)
@@ -192,7 +192,7 @@ MCsim <- function(N,T,R,T0,N_t,logi_sc,noise_sc,beta_sc,loading_sc,shift_sc,core
   
   # bootstrap variance estimation
   df_mc_weights <- widetoLong(Y= noisy_mat, mask = mask, X = X)
-  est_mc_weights$boot_var <- clustered_bootstrap(current_data_realized_long=df_mc_weights, estimator="mc_weights", N=nrow(noisy_mat), T=ncol(noisy_mat), B = 599, est_weights = TRUE, ncores = cores)
+  est_mc_weights$boot_var <- clustered_bootstrap(current_data_realized_long=df_mc_weights, estimator="mc_weights", N=nrow(noisy_mat), T=ncol(noisy_mat), B = 399, est_weights = TRUE, ncores = cores)
   print(paste("MC-NNM (weights) variance:", round(est_mc_weights$boot_var,3)))
   
   est_mc_weights$cp <- CI_test(est_coefficent=est_mc_weights$att.bar, real_coefficent=att.true, est_var=est_mc_weights$boot_var)
@@ -220,7 +220,7 @@ MCsim <- function(N,T,R,T0,N_t,logi_sc,noise_sc,beta_sc,loading_sc,shift_sc,core
   
   # bootstrap variance estimation
   df_mc_weights_covars <- widetoLong(Y= noisy_mat, mask = mask, X = X)
-  est_mc_weights_covars$boot_var <- clustered_bootstrap(current_data_realized_long=df_mc_weights_covars, estimator="mc_weights_covars",N=nrow(noisy_mat), T=ncol(noisy_mat), B = 599, est_weights = TRUE, ncores = cores)
+  est_mc_weights_covars$boot_var <- clustered_bootstrap(current_data_realized_long=df_mc_weights_covars, estimator="mc_weights_covars",N=nrow(noisy_mat), T=ncol(noisy_mat), B = 399, est_weights = TRUE, ncores = cores)
   print(paste("MC-NNM (weights + covars) variance:", round(est_mc_weights_covars$boot_var,3)))
   
   est_mc_weights_covars$cp <- CI_test(est_coefficent=est_mc_weights_covars$att.bar, real_coefficent=att.true, est_var=est_mc_weights_covars$boot_var)
@@ -246,7 +246,7 @@ MCsim <- function(N,T,R,T0,N_t,logi_sc,noise_sc,beta_sc,loading_sc,shift_sc,core
   
   # bootstrap variance estimation
   df_ADH <- widetoLong(Y= noisy_mat, mask = mask, X = NULL)
-  est_model_ADH$boot_var <- clustered_bootstrap(current_data_realized_long=df_ADH, estimator="ADH", N=nrow(noisy_mat), T=ncol(noisy_mat), B = 599, est_weights = FALSE, ncores = cores)
+  est_model_ADH$boot_var <- clustered_bootstrap(current_data_realized_long=df_ADH, estimator="ADH", N=nrow(noisy_mat), T=ncol(noisy_mat), B = 399, est_weights = FALSE, ncores = cores)
   print(paste("ADH variance:", round(est_model_ADH$boot_var,3)))
   
   est_model_ADH$cp <- CI_test(est_coefficent=est_model_ADH$att.bar, real_coefficent=att.true, est_var=est_model_ADH$boot_var)
@@ -272,7 +272,7 @@ MCsim <- function(N,T,R,T0,N_t,logi_sc,noise_sc,beta_sc,loading_sc,shift_sc,core
   
   # bootstrap variance estimation
   df_DID <- widetoLong(Y= noisy_mat, mask = mask, X = NULL)
-  est_model_DID$boot_var <- clustered_bootstrap(current_data_realized_long=df_DID, estimator="DID", N=nrow(noisy_mat), T=ncol(noisy_mat), B = 599, est_weights = FALSE, ncores = cores)
+  est_model_DID$boot_var <- clustered_bootstrap(current_data_realized_long=df_DID, estimator="DID", N=nrow(noisy_mat), T=ncol(noisy_mat), B = 399, est_weights = FALSE, ncores = cores)
   print(paste("DID variance:", round(est_model_DID$boot_var,3)))
   
   est_model_DID$cp <- CI_test(est_coefficent=est_model_DID$att.bar, real_coefficent=att.true, est_var=est_model_DID$boot_var)
@@ -299,7 +299,7 @@ MCsim <- function(N,T,R,T0,N_t,logi_sc,noise_sc,beta_sc,loading_sc,shift_sc,core
   
   # bootstrap variance estimation
   df_IFE <- widetoLong(Y= noisy_mat, mask = mask, X = NULL)
-  est_model_IFE$boot_var <- clustered_bootstrap(current_data_realized_long=df_IFE, estimator="IFE", N=nrow(noisy_mat), T=ncol(noisy_mat), B = 599, est_weights = FALSE, ncores = cores)
+  est_model_IFE$boot_var <- clustered_bootstrap(current_data_realized_long=df_IFE, estimator="IFE", N=nrow(noisy_mat), T=ncol(noisy_mat), B = 399, est_weights = FALSE, ncores = cores)
   print(paste("IFE variance:", round(est_model_IFE$boot_var,3)))
   
   est_model_IFE$cp <- CI_test(est_coefficent=est_model_IFE$att.bar, real_coefficent=att.true, est_var=est_model_IFE$boot_var)
@@ -337,7 +337,10 @@ beta_sc <- 0.1 # beta scale
 loading_sc <- 0.1 # factor loading scale
 shift_sc <- 0.01 # shift scale
 
-cores <- parallel::detectCores()
+if(doMPI){
+  cores <- parallel::detectCores()
+  print(paste0("number of cores used: ", cores))
+}
 
 n.runs <- 1000 # Num. simulation runs
 
