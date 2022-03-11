@@ -19,7 +19,7 @@ source('IFE.R')
 ## Setup parallel processing 
 # Setup parallel processing
 
-doMPI <- FALSE
+doMPI <- TRUE
 if(doMPI){
   library(doMPI)
   
@@ -209,7 +209,7 @@ SchengenSim <- function(T0,N_t,cores,sim,n,outcome){
 }
 
 # define settings for simulation
-settings <- expand.grid("T0" =c(0.5,0.65,0.75), #0.05, 0.25, 0.5
+settings <- expand.grid("T0" =c(0.5,0.65,0.75),
                         "N_t" =c(0.5))
 
 args <- commandArgs(trailingOnly = TRUE) # command line arguments
