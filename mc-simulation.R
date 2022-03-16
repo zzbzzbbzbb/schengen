@@ -306,7 +306,7 @@ MCsim <- function(N,T,R,T0,N_t,logi_sc,beta_sc,loading_sc,shift_sc,cores,n){
   
   # cleanup
   cat(paste("Done with simulation run number",n, "\n"))
-  return(list("N"=N, "T"=T, "R"=R, "T0"=T0, "N_t"=N_t,"logi_sc"=logi_sc,"beta_sc"=beta_sc,"loading_sc"=loading_sc, "shift_sc"=shift_sc,"cores"=cores,"fr_obs"= fr_obs,
+  return(list("N"=N, "T"=T, "R"=R, "T0"=T0, "N_t"=N_t,"logi_sc"=logi_sc,"beta_sc"=beta_sc,"loading_sc"=loading_sc, "shift_sc"=shift_sc,"fr_obs"= fr_obs,
               "est_mc_plain_RMSE"=est_mc_plain$RMSE,"est_mc_plain_abs_bias"=est_mc_plain$abs.bias,"est_mc_plain_rel_abs_bias"=est_mc_plain$rel.abs.bias,"est_mc_plain_cp"=est_mc_plain$cp,"est_mc_plain_boot_var"=est_mc_plain$boot_var,"est_mc_plain_rankL"=est_mc_plain$rankL,
               "est_mc_weights_RMSE"=est_mc_weights$RMSE,"est_mc_weights_abs_bias"=est_mc_weights$abs.bias,"est_mc_weights_rel_abs_bias"=est_mc_weights$rel.abs.bias,"est_mc_weights_cp"=est_mc_weights$cp,"est_mc_weights_boot_var"=est_mc_weights$boot_var,"est_mc_weights_rankL"=est_mc_weights$rankL,
               "est_mc_weights_covars_RMSE"=est_mc_weights_covars$RMSE,"est_mc_weights_covars_abs_bias"=est_mc_weights_covars$abs.bias,"est_mc_weights_covars_rel_abs_bias"=est_mc_weights_covars$rel.abs.bias,"est_mc_weights_covars_cp"=est_mc_weights_covars$cp,"est_mc_weights_covars_boot_var"=est_mc_weights_covars$boot_var,"est_mc_weights_covars_rankL"=est_mc_weights_covars$rankL,
@@ -318,8 +318,8 @@ MCsim <- function(N,T,R,T0,N_t,logi_sc,beta_sc,loading_sc,shift_sc,cores,n){
 # define settings for simulation
 settings <- expand.grid("NT"=c(40**2),
                         "N_t" =c(0.3), # N_ST =12
-                        "logi_scale"=c(1,4,8),
-                        "shift_scale"=c(0.01,0.1,0.2),
+                        "logi_scale"=c(1,8),
+                        "shift_scale"=c(0.01,0.1),
                         "R"=c(5,10,15))
 
 args <- commandArgs(trailingOnly = TRUE) # command line arguments
