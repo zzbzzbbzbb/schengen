@@ -14,17 +14,18 @@ library(scales)
 n.estimators <- 4
 
 #group.colors <- c("#F8766D","#B79F00", "#00BA38","#00BFC4", "#619CFF", "#F564E3")
-group.colors <- c("#F8766D","#B79F00", "#00BFC4", "#619CFF", "#F564E3")
-
+group.colors <- c("#F8766D","#B79F00", "#619CFF", "#F564E3")
 
 # Load results data
 
-filenames <- c(list.files(path="outputs/20220123", pattern = ".rds", full.names = TRUE))
+filenames <- c(list.files(path="outputs/20220316", pattern = ".rds", full.names = TRUE),
+               list.files(path="outputs/20220314", pattern = ".rds", full.names = TRUE),
+               list.files(path="outputs/20220315", pattern = ".rds", full.names = TRUE))
 
-rmse.vars <- c('est_mc_weights_RMSE','est_model_ADH_RMSE','est_model_DID_RMSE','est_model_IFE_RMSE')
-abs.bias.vars <- c('est_mc_weights_abs_bias','est_model_ADH_abs_bias','est_model_DID_abs_bias','est_model_IFE_abs_bias')
-cp.vars <- c('est_mc_weights_cp','est_model_ADH_cp','est_model_DID_cp','est_model_IFE_cp')
-boot.var.vars <- c('est_mc_weights_boot_var','est_model_ADH_boot_var','est_model_DID_boot_var','est_model_IFE_boot_var')
+rmse.vars <- c('est_mc_weights_covars_RMSE','est_model_ADH_RMSE','est_model_DID_RMSE','est_model_IFE_RMSE')
+abs.bias.vars <- c('est_mc_weights_covars_abs_bias','est_model_ADH_abs_bias','est_model_DID_abs_bias','est_model_IFE_abs_bias')
+cp.vars <- c('est_mc_weights_covars_cp','est_model_ADH_cp','est_model_DID_cp','est_model_IFE_cp')
+boot.var.vars <- c('est_mc_weights_covars_boot_var','est_model_ADH_boot_var','est_model_DID_boot_var','est_model_IFE_boot_var')
 
 results <- list() # structure is: [[filename]][[metric]]
 for(f in filenames){
@@ -78,7 +79,7 @@ results.df <- data.frame("rmse"=as.numeric(unlist(rmse)),
                         "abs_bias"=as.numeric(unlist(abs.bias)),
                          "Coverage"=as.numeric(unlist(CP)),
                          "boot_var"=as.numeric(unlist(boot.var)),
-                         "Estimator"=c(rep("MC (weights)",length.out=length(c(unlist(CP[[1]])))),
+                         "Estimator"=c(rep("MC (weights + covars.)",length.out=length(c(unlist(CP[[1]])))),
                          rep("SCM",length.out=length(c(unlist(CP[[2]])))),
                          rep("DID",length.out=length(c(unlist(CP[[3]])))),
                          rep("IFE",length.out=length(c(unlist(CP[[4]]))))),
@@ -87,7 +88,7 @@ results.df <- data.frame("rmse"=as.numeric(unlist(rmse)),
 results.df$N_t <- NA
 results.df$T0 <- NA
  
-for(s in c("T0_0.5","T0_0.65","T0_0.8","T0_0.95")){
+for(s in c("T0_0.5","T0_0.65","T0_0.75")){
   if(length(grep(s, results.df$filename))>0){
     print(s)
     if(s=="T0_0.5"){
@@ -96,20 +97,17 @@ for(s in c("T0_0.5","T0_0.65","T0_0.8","T0_0.95")){
     if(s=="T0_0.65"){
       T0 <- "0.65"
     }
-    if(s=="T0_0.80"){
-      T0 <- "0.80"
-    }
-    if(s=="T0_0.95"){
-      T0 <- "0.95"
+    if(s=="T0_0.75"){
+      T0 <- "0.75"
     }
     results.df[grep(s, results.df$filename),]$T0 <- T0
   }
 }
 
-for(s in c("N_t0.5")){
+for(s in c("N_t_0.5")){
   if(length(grep(s, results.df$filename))>0){
     print(s)
-    if(s=="N_t0.5"){
+    if(s=="N_t_0.5"){
       N_t <- "0.5"
     }
     results.df[grep(s, results.df$filename),]$N_t  <- N_t
@@ -129,9 +127,10 @@ results_long <- reshape2::melt(results.df[!colnames(results.df) %in% c("id","fil
 # rmse (NxT)
 sim.results.rmse <- ggplot(data=results_long[results_long$variable=="rmse",],
                                aes(x=factor(T0), y=value, fill=Estimator))  + geom_boxplot(outlier.alpha = 0.3,outlier.size = 1, outlier.stroke = 0.1, lwd=0.25) +
- ylab("RMSE") +  xlab(TeX('Placebo $(a_i^{\\prime}/T)$')) +
+ ylab("Average RMSE") +  xlab(TeX('Placebo $(a_i^{\\prime}/T)$')) +
   scale_fill_manual(name = "Estimator:",values=group.colors) +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, NA),breaks= pretty_breaks())+
+ # scale_y_continuous(expand = c(0, 0), limits = c(0, NA))+ # ,breaks= pretty_breaks()
+  coord_cartesian(ylim=c(0,0.03)) +
  theme(plot.title = element_text(hjust = 0.5, family="serif", size=16)) +
   theme(axis.title=element_text(family="serif", size=16)) +
   theme(axis.text.y=element_text(family="serif", size=14)) +
@@ -152,8 +151,9 @@ sim.results.abs.bias <- ggplot(data=results_long[results_long$variable=="abs_bia
                            aes(x=factor(T0), y=value, fill=Estimator))  + geom_boxplot(outlier.alpha = 0.3,outlier.size = 1, outlier.stroke = 0.1, lwd=0.25) +
  ylab("Absolute bias") +  xlab(TeX('Placebo $(a_i^{\\prime}/T)$')) +
   scale_fill_manual(name = "Estimator:",values=group.colors) +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, NA),breaks= pretty_breaks())+
-  theme(legend.position="right") +   theme(plot.title = element_text(hjust = 0.5, family="serif", size=16)) +
+ # scale_y_continuous(expand = c(0, 0), limits = c(0, NA))+ # ,breaks= pretty_breaks()
+  coord_cartesian(ylim=c(0,0.03)) +
+  theme(legend.position="none") +   theme(plot.title = element_text(hjust = 0.5, family="serif", size=16)) +
   theme(axis.title=element_text(family="serif", size=16)) +
   theme(axis.text.y=element_text(family="serif", size=14)) +
   theme(axis.text.x=element_text(family="serif", size=14)) +
@@ -172,9 +172,10 @@ sim.results.coverage <- ggplot(data=results_long[results_long$variable=="CP",],
                            aes(x=factor(T0), y=value, colour=Estimator, group=forcats::fct_rev(Estimator)))  +   geom_line()  +
   xlab(TeX('Placebo $(a_i^{\\prime}/T)$')) + ylab("Coverage probability (%)") +
   scale_fill_manual(name = "Estimator:",values=group.colors) +
-  scale_y_continuous(breaks= pretty_breaks()) +
+  #scale_y_continuous(breaks= pretty_breaks()) +
+  coord_cartesian(ylim=c(0.95,1)) +
   geom_hline(yintercept = 0.95, linetype="dotted")+
-  theme(legend.position="right") +   theme(plot.title = element_text(hjust = 0.5, family="serif", size=16)) +
+  theme(legend.position="none") +   theme(plot.title = element_text(hjust = 0.5, family="serif", size=16)) +
   theme(axis.title=element_text(family="serif", size=16)) +
   theme(axis.text.y=element_text(family="serif", size=14)) +
   theme(axis.text.x=element_text(family="serif", size=14)) +
@@ -194,8 +195,9 @@ sim.results.boot.var <- ggplot(data=results_long[results_long$variable=="boot_va
                            aes(x=factor(T0), y=value, fill=Estimator))  + geom_boxplot(outlier.alpha = 0.3,outlier.size = 1, outlier.stroke = 0.1, lwd=0.25) +
   xlab(TeX('Placebo $(a_i^{\\prime}/T)$'))  + ylab("Bootstrap variance") +
   scale_fill_manual(name = "Estimator:",values=group.colors) +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, NA),breaks= pretty_breaks())+
-  theme(legend.position="right") +   theme(plot.title = element_text(hjust = 0.5, family="serif", size=16)) +
+  #scale_y_continuous(expand = c(0, 0), limits = c(0, NA))+ #,breaks= pretty_breaks()
+  coord_cartesian(ylim=c(0,0.0001)) +
+  theme(legend.position="none") +   theme(plot.title = element_text(hjust = 0.5, family="serif", size=16)) +
   theme(axis.title=element_text(family="serif", size=16)) +
   theme(axis.text.y=element_text(family="serif", size=14)) +
   theme(axis.text.x=element_text(family="serif", size=14)) +
