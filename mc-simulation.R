@@ -335,7 +335,7 @@ MCsim <- function(N,T,R,T0,N_t,logi_sc,beta_sc,loading_sc,shift_sc,estimator,cor
 }
 
 # define settings for simulation
-settings <- expand.grid("NT"=c(40**2),
+settings <- expand.grid("NT"=c(40**2,60**2),
                         "N_t" =c(0.3), # N_ST =12
                         "logi_scale"=c(8),
                         "shift_scale"=c(0.01),
@@ -379,7 +379,7 @@ if(!dir.exists(output_dir)){
 setting <- paste0("N = ", N, ", T = ", T, ", R = ",R, "T0 = " ,T0, "N_t", N_t, "logi_sc", logi_sc, ", beta_sc = ", beta_sc, ", shift_sc = ", shift_sc, ", estimator = ", estimator)
 tic(print(paste0("setting: ",setting)))
 
-results <- foreach(i = 1:n.runs, .combine='rbind', .packages =c("MCPanel","matrixStats","Matrix","MASS","data.table","reshape","reshape2","emfactor"), .verbose = FALSE) %dopar% {
+results <- foreach(i = 1:n.runs, .combine='cbind', .packages =c("MCPanel","matrixStats","Matrix","MASS","data.table","reshape","reshape2","emfactor"), .verbose = FALSE) %dopar% {
   MCsim(N,T,R,T0,N_t,logi_sc,beta_sc,loading_sc,shift_sc,estimator,cores,n=i)
 }
 results
